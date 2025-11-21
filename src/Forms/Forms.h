@@ -1,48 +1,24 @@
 #pragma once
 
-class Forms
+namespace Forms
 {
-public:
+	static RE::TESGlobal* BWA_bEnabled{ nullptr };
+	static RE::TESGlobal* BWA_bOverrideInAir{ nullptr };
+	static RE::TESGlobal* BWA_bOverrideInCombat{ nullptr };
+	static RE::TESGlobal* BWA_bOverrideTrespassing{ nullptr };
+	static RE::TESGlobal* BWA_bOverrideTakingHealthDamage{ nullptr };
+	static RE::TESGlobal* BWA_bOverrideTakingRadDamage{ nullptr };
+
 	static void Install()
 	{
-		BWA_bEnabled_DO =
-			RE::DefaultObjectFormFactory::Create(
-				"BWA_bEnabled_DO",
-				RE::ENUM_FORM_ID::kGLOB);
-
-		BWA_bOverrideInAir_DO =
-			RE::DefaultObjectFormFactory::Create(
-				"BWA_bOverrideInAir_DO",
-				RE::ENUM_FORM_ID::kGLOB);
-
-		BWA_bOverrideInCombat_DO =
-			RE::DefaultObjectFormFactory::Create(
-				"BWA_bOverrideInCombat_DO",
-				RE::ENUM_FORM_ID::kGLOB);
-
-		BWA_bOverrideTrespassing_DO =
-			RE::DefaultObjectFormFactory::Create(
-				"BWA_bOverrideTrespassing_DO",
-				RE::ENUM_FORM_ID::kGLOB);
-
-		BWA_bOverrideTakingHealthDamage_DO =
-			RE::DefaultObjectFormFactory::Create(
-				"BWA_bOverrideTakingHealthDamage_DO",
-				RE::ENUM_FORM_ID::kGLOB);
-
-		BWA_bOverrideTakingRadDamage_DO =
-			RE::DefaultObjectFormFactory::Create(
-				"BWA_bOverrideTakingRadDamage_DO",
-				RE::ENUM_FORM_ID::kGLOB);
-
-		F4SE::log::debug("Injected DefaultObjects"sv);
+		if (auto TESDataHandler = RE::TESDataHandler::GetSingleton())
+		{
+			BWA_bEnabled = TESDataHandler->LookupForm<RE::TESGlobal>(0x801, "BakaWaitAnywhere.esm"sv);
+			BWA_bOverrideInAir = TESDataHandler->LookupForm<RE::TESGlobal>(0x802, "BakaWaitAnywhere.esm"sv);
+			BWA_bOverrideInCombat = TESDataHandler->LookupForm<RE::TESGlobal>(0x803, "BakaWaitAnywhere.esm"sv);
+			BWA_bOverrideTrespassing = TESDataHandler->LookupForm<RE::TESGlobal>(0x804, "BakaWaitAnywhere.esm"sv);
+			BWA_bOverrideTakingHealthDamage = TESDataHandler->LookupForm<RE::TESGlobal>(0x805, "BakaWaitAnywhere.esm"sv);
+			BWA_bOverrideTakingRadDamage = TESDataHandler->LookupForm<RE::TESGlobal>(0x806, "BakaWaitAnywhere.esm"sv);
+		}
 	}
-
-	// members
-	inline static RE::BGSDefaultObject* BWA_bEnabled_DO{ nullptr };
-	inline static RE::BGSDefaultObject* BWA_bOverrideInAir_DO{ nullptr };
-	inline static RE::BGSDefaultObject* BWA_bOverrideInCombat_DO{ nullptr };
-	inline static RE::BGSDefaultObject* BWA_bOverrideTrespassing_DO{ nullptr };
-	inline static RE::BGSDefaultObject* BWA_bOverrideTakingHealthDamage_DO{ nullptr };
-	inline static RE::BGSDefaultObject* BWA_bOverrideTakingRadDamage_DO{ nullptr };
-};
+}

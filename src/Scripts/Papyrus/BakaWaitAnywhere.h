@@ -16,15 +16,9 @@ namespace WaitAnywhere
 		inline static REL::Relocation<RE::SettingT<RE::GameSettingCollection>*> sNoWaitTakingRadDamage{ REL::ID(1321782) };
 		inline static REL::Relocation<RE::SettingT<RE::GameSettingCollection>*> sNoWaitWhileAlarm{ REL::ID(397715) };
 
-		bool GetGlobalValue(RE::BGSDefaultObject* a_defaultObject)
+		bool GetGlobalValue(RE::TESGlobal* a_global)
 		{
-			if (!a_defaultObject)
-			{
-				return false;
-			}
-
-			auto global = a_defaultObject->GetForm<RE::TESGlobal>();
-			return global ? global->GetValue() : false;
+			return a_global ? a_global->GetValue() : false;
 		}
 
 		bool GetBlockingMenuOpen(std::vector<std::string> a_menus)
@@ -57,7 +51,7 @@ namespace WaitAnywhere
 
 		if (!PlayerCharacter || !ProcessLists || !SynchedAnimManager)
 		{
-			F4SE::log::warn("WaitAnywhere::CanPassTime: Failed to GetSingleton."sv);
+			REX::WARN("WaitAnywhere::CanPassTime: Failed to GetSingleton."sv);
 			RE::SendHUDMessage::ShowHUDMessage(
 				sNoWaitDefault->GetString().data(),
 				"UIMenuCancel",
@@ -68,21 +62,20 @@ namespace WaitAnywhere
 
 		if (GetBlockingMenuOpen(
 				{ "CookingMenu",
-		          "DialogueMenu",
-		          "ExamineMenu",
-		          "FavoritesMenu",
-		          "LooksMenu",
-		          "PipboyMenu",
-		          "PowerArmorModMenu",
-		          "RobotModMenu",
-		          "VATSMenu",
-		          "WorkshopMenu" }))
+					"DialogueMenu",
+					"ExamineMenu",
+					"FavoritesMenu",
+					"LooksMenu",
+					"PipboyMenu",
+					"PowerArmorModMenu",
+					"RobotModMenu",
+					"VATSMenu",
+					"WorkshopMenu" }))
 		{
 			return false;
 		}
 
-		if (PlayerCharacter->GetParentCell() &&
-		    PlayerCharacter->GetParentCell()->GetCantWaitHere())
+		if (PlayerCharacter->GetParentCell() && PlayerCharacter->GetParentCell()->GetCantWaitHere())
 		{
 			RE::SendHUDMessage::ShowHUDMessage(
 				sNoWaitInCell->GetString().data(),
@@ -92,7 +85,7 @@ namespace WaitAnywhere
 			return false;
 		}
 
-		if (!GetGlobalValue(Forms::BWA_bOverrideTrespassing_DO))
+		if (!GetGlobalValue(Forms::BWA_bOverrideTrespassing))
 		{
 			if (PlayerCharacter->boolFlags.any(RE::Actor::BOOL_FLAGS::kIsTresspassing))
 			{
@@ -105,7 +98,7 @@ namespace WaitAnywhere
 			}
 
 			if (PlayerCharacter->GetParentCell() &&
-			    PlayerCharacter->GetParentCell()->cellFlags.any(RE::TESObjectCELL::Flag::kWarnToLeave))
+				PlayerCharacter->GetParentCell()->cellFlags.any(RE::TESObjectCELL::Flag::kWarnToLeave))
 			{
 				RE::SendHUDMessage::ShowHUDMessage(
 					sNoWaitWarnToLeave->GetString().data(),
@@ -116,7 +109,7 @@ namespace WaitAnywhere
 			}
 		}
 
-		if (!GetGlobalValue(Forms::BWA_bOverrideInAir_DO))
+		if (!GetGlobalValue(Forms::BWA_bOverrideInAir))
 		{
 			if (PlayerCharacter->IsJumping())
 			{
@@ -129,12 +122,9 @@ namespace WaitAnywhere
 			}
 		}
 
-		if (!GetGlobalValue(Forms::BWA_bOverrideInCombat_DO))
+		if (!GetGlobalValue(Forms::BWA_bOverrideInCombat))
 		{
-			if (ProcessLists->IsActorTargetingREFinPackage(
-					PlayerCharacter,
-					RE::PTYPE::kAlarm,
-					false))
+			if (ProcessLists->IsActorTargetingREFinPackage(PlayerCharacter, RE::PTYPE::kAlarm, false))
 			{
 				RE::SendHUDMessage::ShowHUDMessage(
 					sNoWaitWhileAlarm->GetString().data(),
@@ -155,7 +145,7 @@ namespace WaitAnywhere
 			}
 		}
 
-		if (!GetGlobalValue(Forms::BWA_bOverrideTakingHealthDamage_DO))
+		if (!GetGlobalValue(Forms::BWA_bOverrideTakingHealthDamage))
 		{
 			if (PlayerCharacter->IsTakingHealthDamageFromActiveEffect())
 			{
@@ -168,7 +158,7 @@ namespace WaitAnywhere
 			}
 		}
 
-		if (!GetGlobalValue(Forms::BWA_bOverrideTakingRadDamage_DO))
+		if (!GetGlobalValue(Forms::BWA_bOverrideTakingRadDamage))
 		{
 			if (PlayerCharacter->IsTakingRadDamageFromActiveEffect())
 			{
@@ -181,8 +171,7 @@ namespace WaitAnywhere
 			}
 		}
 
-		if (SynchedAnimManager->IsReferenceInSynchronizedScene(
-				RE::PlayerCharacter::GetPlayerHandle()))
+		if (SynchedAnimManager->IsReferenceInSynchronizedScene(RE::PlayerCharacter::GetPlayerHandle()))
 		{
 			RE::SendHUDMessage::ShowHUDMessage(
 				sNoWaitDefault->GetString().data(),
@@ -200,13 +189,11 @@ namespace Papyrus::BakaWaitAnywhere
 {
 	void Wait(std::monostate)
 	{
-		if (WaitAnywhere::GetGlobalValue(Forms::BWA_bEnabled_DO) && WaitAnywhere::CanPassTime())
+		if (WaitAnywhere::GetGlobalValue(Forms::BWA_bEnabled) && WaitAnywhere::CanPassTime())
 		{
 			if (auto UIMessageQueue = RE::UIMessageQueue::GetSingleton())
 			{
-				UIMessageQueue->AddMessage(
-					"SleepWaitMenu"sv,
-					RE::UI_MESSAGE_TYPE::kShow);
+				UIMessageQueue->AddMessage("SleepWaitMenu"sv, RE::UI_MESSAGE_TYPE::kShow);
 			}
 		}
 	}
